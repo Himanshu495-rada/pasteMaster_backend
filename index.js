@@ -6,11 +6,10 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 const app = express();
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-
-const textStore = {};
 
 // Function to remove text based on code
 const removeText = async (code) => {
@@ -28,16 +27,20 @@ app.post("/store", async (req, res) => {
   const { text } = req.body;
   const code = nanoid(4);
 
-  // Store text in the database
-  await prisma.textData.create({
+  const result = await prisma.textData.create({
     data: {
-      code,
-      text,
+      code: code,
+      text: text,
       timestamp: new Date(),
     },
   });
-
+  console.log(result);
   res.json({ code });
+});
+
+app.get("/allText", async (req, res) => {
+  const all_text = await prisma.textData.findMany();
+  res.json({ text: all_text });
 });
 
 app.get("/retrieve/:code", async (req, res) => {
@@ -56,6 +59,7 @@ app.get("/retrieve/:code", async (req, res) => {
 });
 
 setInterval(async () => {
+  console.log("running check");
   const currentTime = new Date();
   const expirationDuration = 10 * 60 * 1000; // 10 minutes
 
@@ -71,6 +75,6 @@ setInterval(async () => {
   await Promise.all(oldEntries.map((entry) => removeText(entry.code)));
 }, 10 * 60 * 1000);
 
-app.listen(3000, () => {
-  console.log(`Server is running on http://localhost:${3000}`);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

@@ -2,17 +2,23 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  previewFeatures = ["mongodb"]
 }
 
+// datasource db {
+//   provider = "sqlite"
+//   url      = "file:./dev.db"
+// }
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model TextData {
-  code      String   @id
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  code      String   @unique
   text      String
   timestamp DateTime
 }
