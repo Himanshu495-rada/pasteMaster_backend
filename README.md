@@ -1,14 +1,16 @@
-# PasteMaster — Backend (Flask API)
+# PasteMaster - Backend (Flask API)
 
 A small Flask + SQLAlchemy API powering PasteMaster, a "shareable clipboard
 across devices". Anonymous pastes are one-time-read; registered users get
 persistent, editable, reshareable pastes.
 
 ## Stack
+
 Flask 3 · Flask-SQLAlchemy · Flask-JWT-Extended · Flask-Cors · Flask-Limiter ·
 PyMySQL · bleach (HTML sanitization).
 
 ## Layout
+
 ```
 backend/
 ├── app/
@@ -27,23 +29,24 @@ backend/
 
 ## API
 
-| Method | Path | Auth | Purpose |
-|--------|------|------|---------|
-| POST | `/api/auth/register` | — | `{email, password}` → `{access_token, user}` |
-| POST | `/api/auth/login` | — | `{email, password}` → `{access_token, user}` |
-| GET  | `/api/auth/me` | JWT | current user |
-| POST | `/api/paste` | optional | create paste → `{code, owned, expires_at?}` |
-| GET  | `/api/paste/:code` | — | retrieve (temp pastes deleted after this read) |
-| GET  | `/api/paste` | JWT | list the current user's pastes |
-| PUT  | `/api/paste/:code` | JWT owner | edit content/title |
-| DELETE | `/api/paste/:code` | JWT owner | delete |
-| POST | `/api/paste/:code/reshare` | JWT owner | rotate to a new code |
+| Method | Path                       | Auth      | Purpose                                        |
+| ------ | -------------------------- | --------- | ---------------------------------------------- |
+| POST   | `/api/auth/register`       | -         | `{email, password}` → `{access_token, user}`   |
+| POST   | `/api/auth/login`          | -         | `{email, password}` → `{access_token, user}`   |
+| GET    | `/api/auth/me`             | JWT       | current user                                   |
+| POST   | `/api/paste`               | optional  | create paste → `{code, owned, expires_at?}`    |
+| GET    | `/api/paste/:code`         | -         | retrieve (temp pastes deleted after this read) |
+| GET    | `/api/paste`               | JWT       | list the current user's pastes                 |
+| PUT    | `/api/paste/:code`         | JWT owner | edit content/title                             |
+| DELETE | `/api/paste/:code`         | JWT owner | delete                                         |
+| POST   | `/api/paste/:code/reshare` | JWT owner | rotate to a new code                           |
 
 `Authorization: Bearer <token>` carries the JWT. Create/retrieve treat the JWT
-as **optional** — with it you get an owned paste, without it an anonymous
+as **optional** - with it you get an owned paste, without it an anonymous
 one-time-read paste.
 
 ## Run locally
+
 ```bash
 cd backend
 python -m venv venv
@@ -52,10 +55,12 @@ pip install -r requirements.txt
 copy .env.example .env          # then edit secrets (SQLite is used by default)
 python run.py                   # serves http://127.0.0.1:3000
 ```
+
 With no `DATABASE_URL` set, a local `pastemaster.db` SQLite file is created
-automatically — no MySQL needed for development.
+automatically - no MySQL needed for development.
 
 ### Quick smoke test
+
 ```bash
 # anonymous create
 curl -s -X POST http://127.0.0.1:3000/api/paste \
@@ -72,7 +77,7 @@ curl -s http://127.0.0.1:3000/api/paste/ABC234
 
 1. **Upload** the `backend/` folder to `/home/YOURUSER/Pastemaster/backend`
    (git clone, or the Files tab).
-2. **Create a MySQL database** in the *Databases* tab (e.g. `pastemaster`).
+2. **Create a MySQL database** in the _Databases_ tab (e.g. `pastemaster`).
    Note the host `YOURUSER.mysql.pythonanywhere-services.com` and your DB
    password.
 3. **Virtualenv** (Bash console):
@@ -83,9 +88,10 @@ curl -s http://127.0.0.1:3000/api/paste/ABC234
    pip install -r requirements.txt
    ```
 4. **Web tab → Add a new web app → Manual configuration** (matching Python
-   version). Set the *Virtualenv* to `/home/YOURUSER/Pastemaster/backend/venv`.
+   version). Set the _Virtualenv_ to `/home/YOURUSER/Pastemaster/backend/venv`.
 5. **Edit the WSGI file** (Web tab link). Replace its contents with env vars +
    the app import:
+
    ```python
    import os, sys
    path = "/home/YOURUSER/Pastemaster/backend"
@@ -102,6 +108,7 @@ curl -s http://127.0.0.1:3000/api/paste/ABC234
 
    from wsgi import application
    ```
+
 6. **Reload** the web app. Tables are created automatically on first boot
    (`db.create_all()`), and `/api/health` should return `{"status":"ok"}`.
 7. **Scheduled task** (Tasks tab, daily):
@@ -110,7 +117,8 @@ curl -s http://127.0.0.1:3000/api/paste/ABC234
    ```
 
 ### Notes
-- Keep `CORS_ORIGINS` set to your real frontend origin(s) in production — never
+
+- Keep `CORS_ORIGINS` set to your real frontend origin(s) in production - never
   `*`.
 - Pasted images are stored inline as base64 (LONGTEXT); `MAX_PASTE_BYTES`
   (default 3 MB) bounds each paste to protect free-tier storage.

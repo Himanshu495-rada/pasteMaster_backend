@@ -7,7 +7,7 @@ import bleach
 from .extensions import db
 from .models import Paste, TempPaste
 
-# Unambiguous charset: no 0/O, 1/I/L — easy to read aloud and type.
+# Unambiguous charset: no 0/O, 1/I/L - easy to read aloud and type.
 CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 CODE_LENGTH = 6
 
@@ -35,14 +35,16 @@ ALLOWED_PROTOCOLS = ["http", "https", "mailto", "data"]
 def generate_code() -> str:
     """Generate a share code that is unique across both paste tables."""
     for _ in range(20):
-        code = "".join(secrets.choice(CODE_ALPHABET) for _ in range(CODE_LENGTH))
+        code = "".join(secrets.choice(CODE_ALPHABET)
+                       for _ in range(CODE_LENGTH))
         exists = (
             db.session.query(Paste.id).filter_by(code=code).first()
             or db.session.query(TempPaste.id).filter_by(code=code).first()
         )
         if not exists:
             return code
-    raise RuntimeError("Could not generate a unique code; namespace may be exhausted.")
+    raise RuntimeError(
+        "Could not generate a unique code; namespace may be exhausted.")
 
 
 def sanitize_html(html: str) -> str:
