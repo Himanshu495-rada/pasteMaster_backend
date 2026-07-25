@@ -21,10 +21,12 @@ def create_app(config_class=Config):
 
     # --- Blueprints ---------------------------------------------------------
     from .routes.auth import auth_bp
+    from .routes.deploy import deploy_bp
     from .routes.paste import paste_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(paste_bp, url_prefix="/api/paste")
+    app.register_blueprint(deploy_bp, url_prefix="/api/deploy")
 
     # --- Health check + friendly root --------------------------------------
     @app.get("/")
